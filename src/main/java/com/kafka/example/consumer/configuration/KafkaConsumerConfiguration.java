@@ -28,8 +28,6 @@ public class KafkaConsumerConfiguration {
         Map<String,Object> configs = new HashMap<>();
         configs.put( ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
         configs.put( ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-		// configs.put( ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        // configs.put( ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
         configs.put( ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true");
         return new DefaultKafkaConsumerFactory<>(configs, new StringDeserializer(), new JsonDeserializer<>(Notification.class));
     }

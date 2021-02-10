@@ -55,9 +55,7 @@ public class LogServiceIT {
     @BeforeAll
     public void setup(){
         Map<String, Object> configs = new HashMap<>(KafkaTestUtils.producerProps(kafkaEmbedded));
-        // create a Kafka consumer factory
-        producer = new DefaultKafkaProducerFactory<String, Notification>(configs, new StringSerializer(), new JsonSerializer<>()).createProducer();
-        
+        producer = new DefaultKafkaProducerFactory<String, Notification>(configs, new StringSerializer(), new JsonSerializer<>()).createProducer();   
     }
 
     @AfterAll
