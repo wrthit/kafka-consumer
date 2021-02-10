@@ -1,9 +1,8 @@
 package com.kafka.example.consumer.service;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.atLeast;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 
 import java.util.HashMap;
@@ -20,6 +19,8 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
@@ -28,9 +29,11 @@ import org.springframework.kafka.support.serializer.JsonSerializer;
 import org.springframework.kafka.test.EmbeddedKafkaBroker;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.kafka.test.utils.KafkaTestUtils;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 
 @SpringBootTest
+@DirtiesContext
 @EmbeddedKafka(topics = { "logging" }, partitions = 1, brokerProperties = { "listeners=PLAINTEXT://localhost:9092",
         "port=9092" })
 @ContextConfiguration(classes = {KafkaConsumerConfiguration.class})
@@ -45,6 +48,9 @@ public class LogServiceIT {
 
     Producer<String, Notification> producer;
     private static final String TOPIC = "logging";
+
+    @Captor
+    ArgumentCaptor<String> timestampCaptor;
 
     @BeforeAll
     public void setup(){
@@ -70,6 +76,7 @@ public class LogServiceIT {
                                                 .type(LogType.INFO)
                                                 .build();
 
+        Long millisBefore = System.currentTimeMillis();                                           
         producer.send(new ProducerRecord<String, Notification>(TOPIC, notification));
         
         try {
@@ -78,7 +85,10 @@ public class LogServiceIT {
             fail("InterruptException thrown. " + e.getMessage());
         }
 
-        verify(logServiceMock, atLeast(1)).logNotification(any(Notification.class), anyString());
+        verify(logServiceMock).logNotification(eq(notification), timestampCaptor.capture());
+
+        Long millisAfter = Long.parseLong(timestampCaptor.getValue());
+        assertTrue(millisAfter.compareTo(millisBefore) > 0);
     }
 
 }
