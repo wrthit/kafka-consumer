@@ -1,3 +1,6 @@
 spring:
     kafka:
         bootstrap-servers: ${spring.embedded.kafka.brokers}
+
+topic: logging
+groupId: logService

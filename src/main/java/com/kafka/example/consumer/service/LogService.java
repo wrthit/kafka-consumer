@@ -15,8 +15,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class LogService {
-    
-    @KafkaListener(topics = "logging", groupId = "logService", containerFactory = "kafkaListenerContainerFactory")
+
+    @KafkaListener(topics = "${topic}", groupId = "${groupId}", containerFactory = "kafkaListenerContainerFactory")
     public void logNotification (@Payload Notification notification, @Header(KafkaHeaders.RECEIVED_TIMESTAMP) String timestamp){
         
         System.out.println("***********************************");

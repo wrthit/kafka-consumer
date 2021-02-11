@@ -22,6 +22,7 @@ import org.junit.jupiter.api.TestInstance;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
@@ -47,7 +48,9 @@ public class LogServiceIT {
     private EmbeddedKafkaBroker kafkaEmbedded;
 
     Producer<String, Notification> producer;
-    private static final String TOPIC = "logging";
+
+    @Value("${topic}")
+    private String TOPIC;
 
     @Captor
     ArgumentCaptor<String> timestampCaptor;
