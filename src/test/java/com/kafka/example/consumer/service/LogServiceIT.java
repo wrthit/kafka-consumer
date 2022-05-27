@@ -1,8 +1,8 @@
 package com.kafka.example.consumer.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 
 import java.util.HashMap;
@@ -35,7 +35,7 @@ import org.springframework.test.context.ContextConfiguration;
 
 @SpringBootTest
 @DirtiesContext
-@EmbeddedKafka(topics = { "logging" }, partitions = 1, brokerProperties = { "listeners=PLAINTEXT://localhost:9092",
+@EmbeddedKafka(topics = {"logging"}, partitions = 1, brokerProperties = { "listeners=PLAINTEXT://localhost:9092",
         "port=9092" })
 @ContextConfiguration(classes = {KafkaConsumerConfiguration.class})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -54,6 +54,9 @@ public class LogServiceIT {
 
     @Captor
     ArgumentCaptor<String> timestampCaptor;
+
+    @Captor
+    ArgumentCaptor<Notification> notificationCaptor;
 
     @BeforeAll
     public void setup(){
@@ -86,10 +89,13 @@ public class LogServiceIT {
             fail("InterruptException thrown. " + e.getMessage());
         }
 
-        verify(logServiceMock).logNotification(eq(notification), timestampCaptor.capture());
+        verify(logServiceMock).logNotification(notificationCaptor.capture(), timestampCaptor.capture());
 
         Long millisAfter = Long.parseLong(timestampCaptor.getValue());
         assertTrue(millisAfter.compareTo(millisBefore) > 0);
+
+        Notification capturedNotification = notificationCaptor.getValue();
+        assertEquals(notification.getService(), capturedNotification.getService());
     }
 
 }
